@@ -10,7 +10,7 @@
   <link href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-mono/style.css" rel="stylesheet">
   <link href="/static/common/common.css?v=3" rel="stylesheet">
-  <link href="/static/video/video.css?v=1" rel="stylesheet">
+  <link href="/static/video/video.css?v=3" rel="stylesheet">
   <link href="/static/common/toast.css" rel="stylesheet">
 </head>
 
@@ -25,30 +25,36 @@
           <h2 class="text-2xl font-semibold tracking-tight">Video 视频生成</h2>
           <p class="text-[var(--accents-4)] mt-1 text-sm">通过 Grok 生成短视频，支持多种宽高比、时长和风格预设。</p>
         </div>
-        <div class="video-actions">
-          <button id="generateBtn" class="geist-button gap-2">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="5 3 19 12 5 21 5 3" />
-            </svg>
-            生成视频
-          </button>
-          <button id="stopBtn" class="geist-button-outline gap-2 hidden">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <rect x="5" y="5" width="14" height="14" />
-            </svg>
-            停止生成
-          </button>
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="video-mode-toggle">
+            <button class="video-mode-btn active" data-mode="single">单视频</button>
+            <button class="video-mode-btn" data-mode="waterfall">瀑布流</button>
+          </div>
+          <div class="video-actions">
+            <button id="generateBtn" class="geist-button gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              生成视频
+            </button>
+            <button id="stopBtn" class="geist-button-outline gap-2 hidden">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="5" width="14" height="14" />
+              </svg>
+              停止生成
+            </button>
+          </div>
         </div>
       </div>
 
       <div class="h-px bg-[var(--border)] my-6"></div>
 
-      <div class="video-grid">
-        <section class="video-primary">
-          <!-- 生成设置卡片 -->
-          <div class="video-card">
+      <div class="video-grid" id="videoGrid">
+        <section class="video-primary" id="videoPrimary">
+          <!-- 单视频模式：生成设置卡片 -->
+          <div class="video-card" id="singleSettings">
             <div class="card-title">生成设置</div>
             <div class="video-settings">
               <div>
@@ -105,8 +111,8 @@
             </div>
           </div>
 
-          <!-- 视频预览卡片 -->
-          <div class="video-card">
+          <!-- 单视频模式：视频预览卡片 -->
+          <div class="video-card" id="singlePreview">
             <div class="card-title">视频预览</div>
             <div id="videoEmpty" class="video-empty">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
@@ -137,9 +143,80 @@
               <span id="metaElapsed" class="font-mono"></span>
             </div>
           </div>
+
+          <!-- 瀑布流模式：设置栏 + 网格 (默认隐藏) -->
+          <div id="wfSection" class="hidden">
+            <div class="waterfall-settings">
+              <div class="field-group">
+                <label>提示词</label>
+                <textarea id="wfPromptInput" class="geist-input" rows="1"
+                  style="min-height:28px;resize:none;width:260px;font-size:11px;"
+                  placeholder="描述你想要的视频画面"></textarea>
+              </div>
+              <div class="field-group">
+                <label>比例</label>
+                <select id="wfRatio" class="geist-input">
+                  <option value="3:2">3:2</option>
+                  <option value="16:9">16:9</option>
+                  <option value="1:1">1:1</option>
+                  <option value="2:3">2:3</option>
+                  <option value="9:16">9:16</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>时长</label>
+                <select id="wfLength" class="geist-input">
+                  <option value="6">6s</option>
+                  <option value="10">10s</option>
+                  <option value="15">15s</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>分辨率</label>
+                <select id="wfResolution" class="geist-input">
+                  <option value="480p">480p</option>
+                  <option value="720p">720p</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>并发</label>
+                <select id="wfConcurrent" class="geist-input">
+                  <option value="1" selected>1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="toggle" style="margin:0;">
+                  <input id="wfAutoScroll" type="checkbox" checked>
+                  <span class="toggle-track"></span>
+                  <span class="toggle-label" style="font-size:11px;">自动滚动</span>
+                </label>
+              </div>
+              <div class="field-group">
+                <label class="toggle" style="margin:0;">
+                  <input id="wfAutoDownload" type="checkbox">
+                  <span class="toggle-track"></span>
+                  <span class="toggle-label" style="font-size:11px;">自动下载</span>
+                </label>
+              </div>
+            </div>
+            <div id="wfGrid" class="video-waterfall">
+              <div class="wf-empty">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                  stroke-linecap="round" stroke-linejoin="round" style="color:var(--accents-3);margin-bottom:8px;">
+                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                  <line x1="7" y1="2" x2="7" y2="22"></line>
+                  <line x1="17" y1="2" x2="17" y2="22"></line>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                </svg>
+                <div>输入提示词并点击"生成视频"开始批量生成</div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <aside class="video-side">
+        <aside class="video-side" id="videoSide">
           <!-- 生成状态卡片 -->
           <div class="video-card">
             <div class="video-status-header">
@@ -184,13 +261,58 @@
     </div>
   </main>
 
+  <!-- 瀑布流 Lightbox -->
+  <div id="wfLightbox" class="video-lightbox">
+    <button class="lightbox-close" id="lightboxClose">&times;</button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev">&#8249;</button>
+    <video id="lightboxVideo" controls playsinline></video>
+    <button class="lightbox-nav lightbox-next" id="lightboxNext">&#8250;</button>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
+  </div>
+
+  <!-- 瀑布流浮动工具栏 -->
+  <div id="wfFloatingBar" class="video-floating-bar hidden">
+    <button id="wfStartBtn" class="geist-button-outline text-xs px-3 gap-1 border-0 hover:bg-gray-100">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="5 3 19 12 5 21 5 3" />
+      </svg>
+      开始
+    </button>
+    <button id="wfStopBtn" class="geist-button-outline text-xs px-3 gap-1 border-0 hover:bg-gray-100 hidden">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="5" y="5" width="14" height="14" />
+      </svg>
+      停止
+    </button>
+    <span class="float-sep"></span>
+    <button id="wfClearBtn" class="geist-button-outline text-xs px-3 gap-1 border-0 hover:bg-red-100">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      </svg>
+      清空
+    </button>
+    <span class="float-sep"></span>
+    <button id="floatSelectAll" class="geist-button-outline text-xs px-3 gap-1 border-0 hover:bg-gray-100">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="9 11 12 14 22 4"></polyline>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+      </svg>
+      批量
+    </button>
+    <div id="selectionToolbar" class="hidden" style="display:inline-flex;align-items:center;gap:6px;">
+      <button id="floatDeselectAll" class="geist-button-outline text-xs px-3 gap-1 border-0 hover:bg-gray-100">取消</button>
+      <button id="floatDownload" class="geist-button-outline text-xs px-3 gap-1 border-0 hover:bg-gray-100">下载 <span id="floatCounter" class="float-counter">0</span></button>
+      <button id="floatDelete" class="geist-button-outline text-xs px-3 gap-1 border-0 hover:bg-red-100">删除</button>
+    </div>
+  </div>
+
   <div id="app-footer"></div>
 
   <script src="/static/common/admin-auth.js?v=2"></script>
   <script src="/static/common/header.js?v=4"></script>
   <script src="/static/common/footer.js?v=1"></script>
   <script src="/static/common/toast.js"></script>
-  <script src="/static/video/video.js?v=1"></script>
+  <script src="/static/video/video.js?v=2"></script>
 </body>
 
 </html>

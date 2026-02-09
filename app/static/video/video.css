@@ -310,3 +310,446 @@
 .hidden {
   display: none !important;
 }
+
+/* ========== 模式切换 ========== */
+.video-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.video-mode-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--accents-5);
+  font-size: 11px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-family: 'Geist Sans', sans-serif;
+}
+
+.video-mode-btn:hover {
+  background: var(--hover-bg, #f5f5f5);
+  color: var(--accents-7);
+}
+
+.video-mode-btn.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* ========== 瀑布流设置 ========== */
+.waterfall-settings {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: var(--video-surface);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.waterfall-settings .field-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.waterfall-settings .field-group label {
+  font-size: 11px;
+  color: var(--accents-5);
+  white-space: nowrap;
+}
+
+.waterfall-settings .field-group select {
+  height: 28px;
+  font-size: 11px;
+  padding: 0 8px;
+  min-width: 60px;
+}
+
+/* ========== 瀑布流网格 ========== */
+.video-waterfall {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .video-waterfall {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .video-waterfall {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========== 瀑布流卡片 ========== */
+.wf-item {
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  animation: wfRiseIn 0.4s ease;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.wf-item:hover {
+  transform: scale(1.02);
+}
+
+@keyframes wfRiseIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wf-item video {
+  width: 100%;
+  display: block;
+  border-radius: 14px 14px 0 0;
+  background: #000;
+}
+
+.wf-item-info {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wf-item-prompt {
+  font-size: 11px;
+  color: var(--accents-7);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wf-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--accents-4);
+  font-family: 'Geist Mono', monospace;
+}
+
+.wf-item-meta .wf-tag {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--video-surface-muted);
+}
+
+/* 选择模式 */
+.wf-item .wf-checkbox {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+.wf-item.selection-mode .wf-checkbox {
+  display: flex;
+}
+
+.wf-item.selected .wf-checkbox {
+  background: #000;
+  border-color: #000;
+}
+
+.wf-item.selected .wf-checkbox::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+/* 生成中占位卡片 */
+.wf-item.generating {
+  cursor: default;
+}
+
+.wf-item.generating:hover {
+  transform: none;
+}
+
+.wf-placeholder {
+  aspect-ratio: 16/9;
+  background: var(--video-surface-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 14px 14px 0 0;
+}
+
+.wf-placeholder-bar {
+  width: 60%;
+  height: 3px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.wf-placeholder-fill {
+  height: 100%;
+  background: #111;
+  border-radius: 999px;
+  width: 30%;
+  animation: indeterminate 1.5s ease-in-out infinite;
+}
+
+.wf-placeholder-text {
+  font-size: 10px;
+  color: var(--accents-4);
+  font-family: 'Geist Mono', monospace;
+}
+
+/* 错误状态 */
+.wf-item.error .wf-placeholder {
+  background: #fef2f2;
+}
+
+.wf-item.error .wf-placeholder-text {
+  color: #ef4444;
+}
+
+/* ========== Video Lightbox ========== */
+.video-lightbox {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.video-lightbox.active {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.video-lightbox video {
+  max-width: 90%;
+  max-height: 85%;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  outline: none;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 10000;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10000;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lightbox-nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.lightbox-prev {
+  left: 30px;
+}
+
+.lightbox-next {
+  right: 30px;
+}
+
+.lightbox-counter {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-family: 'Geist Mono', monospace;
+}
+
+/* ========== 浮动工具栏 ========== */
+.video-floating-bar {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  cursor: move;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.video-floating-bar:active {
+  cursor: grabbing;
+}
+
+.video-floating-bar button {
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--accents-6);
+  transition: all 0.2s;
+  font-family: 'Geist Sans', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.video-floating-bar button:hover {
+  background: #f5f5f5;
+  color: #000;
+}
+
+.video-floating-bar button.hover\:bg-red-100:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.video-floating-bar button.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.float-sep {
+  display: inline-block;
+  width: 1px;
+  height: 14px;
+  background: var(--border);
+  margin: 0 2px;
+}
+
+.float-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  background: #000;
+  color: #fff;
+  border-radius: 999px;
+  font-family: 'Geist Mono', monospace;
+}
+
+/* ========== 瀑布流全宽布局 ========== */
+.video-grid.waterfall-active {
+  grid-template-columns: 1fr;
+}
+
+.video-grid.waterfall-active .video-side {
+  display: none;
+}
+
+/* 瀑布流空状态 */
+.wf-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--accents-4);
+  font-size: 12px;
+  text-align: center;
+  grid-column: 1 / -1;
+}
