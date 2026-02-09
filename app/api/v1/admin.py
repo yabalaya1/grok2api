@@ -240,6 +240,12 @@ async def admin_imagine_page():
     return await render_template("imagine/imagine.html")
 
 
+@router.get("/admin/video", response_class=HTMLResponse, include_in_schema=False)
+async def admin_video_page():
+    """Video 视频生成页"""
+    return await render_template("video/video.html")
+
+
 class VoiceTokenResponse(BaseModel):
     token: str
     url: str

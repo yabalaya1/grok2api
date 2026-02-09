@@ -1,0 +1,282 @@
+:root {
+  --video-surface: #ffffff;
+  --video-surface-muted: #f3f4f6;
+}
+
+/* 布局 */
+.video-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.video-primary,
+.video-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 卡片 */
+.video-card {
+  background: var(--video-surface);
+  border: none;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: none;
+}
+
+/* 设置区 */
+.video-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.video-textarea {
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.video-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.video-toggle-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.video-toggle-item .field-label {
+  margin-bottom: 6px;
+}
+
+/* 操作按钮 */
+.video-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.video-actions .geist-button,
+.video-actions .geist-button-outline {
+  height: 32px;
+}
+
+/* 状态头部 */
+.video-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  margin-bottom: 12px;
+}
+
+.video-status-header .card-title {
+  margin-bottom: 0;
+}
+
+/* meta-item 背景色覆盖 */
+.video-card .meta-item {
+  background: var(--video-surface-muted);
+}
+
+/* 视频空状态 */
+.video-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--accents-4);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* 视频进度 */
+.video-progress {
+  padding: 20px 0;
+}
+
+.video-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--video-surface-muted);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.video-progress-fill {
+  height: 100%;
+  background: #111;
+  border-radius: 999px;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.video-progress-fill.indeterminate {
+  width: 30%;
+  animation: indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.video-progress-text {
+  font-size: 11px;
+  color: var(--accents-4);
+  margin-top: 8px;
+  text-align: center;
+  font-family: 'Geist Mono', monospace;
+}
+
+/* 视频播放器 */
+.video-player-wrapper {
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+.video-player-wrapper video {
+  width: 100%;
+  display: block;
+  border-radius: 8px;
+}
+
+.video-html-container {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-html-container video {
+  width: 100%;
+  display: block;
+  border-radius: 8px;
+}
+
+/* 视频元数据 */
+.video-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 0;
+  font-size: 11px;
+  color: var(--accents-4);
+}
+
+.video-meta-prompt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.video-meta .font-mono {
+  font-family: 'Geist Mono', monospace;
+  color: var(--accents-5);
+  flex-shrink: 0;
+}
+
+/* 历史列表 */
+.video-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.video-history-header .card-title {
+  margin-bottom: 0;
+}
+
+.video-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.video-history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--video-surface-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.video-history-item:hover {
+  background: #e9eaec;
+}
+
+.video-history-item.active {
+  background: #e5e7eb;
+  border: 1px solid var(--border);
+}
+
+.video-history-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.video-history-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.video-history-prompt {
+  font-size: 11px;
+  color: var(--accents-7);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.video-history-time {
+  font-size: 10px;
+  color: var(--accents-4);
+  font-family: 'Geist Mono', monospace;
+  margin-top: 2px;
+}
+
+.video-hint {
+  font-size: 11px;
+  color: var(--accents-4);
+}
+
+.hidden {
+  display: none !important;
+}

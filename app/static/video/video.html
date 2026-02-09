@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grok2API - Video 视频生成</title>
+  <link rel="icon" href="/static/favicon/favicon.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-sans/style.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.0.0/dist/fonts/geist-mono/style.css" rel="stylesheet">
+  <link href="/static/common/common.css?v=3" rel="stylesheet">
+  <link href="/static/video/video.css?v=1" rel="stylesheet">
+  <link href="/static/common/toast.css" rel="stylesheet">
+</head>
+
+<body class="min-h-screen flex flex-col" style="background-color: var(--bg);">
+  <div id="toast-container" class="toast-container"></div>
+  <div id="app-header"></div>
+
+  <main class="space-y-6 flex-1 container mx-auto max-w-5xl px-6 py-8 fade-in">
+    <div class="space-y-6">
+      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h2 class="text-2xl font-semibold tracking-tight">Video 视频生成</h2>
+          <p class="text-[var(--accents-4)] mt-1 text-sm">通过 Grok 生成短视频，支持多种宽高比、时长和风格预设。</p>
+        </div>
+        <div class="video-actions">
+          <button id="generateBtn" class="geist-button gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            生成视频
+          </button>
+          <button id="stopBtn" class="geist-button-outline gap-2 hidden">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="5" width="14" height="14" />
+            </svg>
+            停止生成
+          </button>
+        </div>
+      </div>
+
+      <div class="h-px bg-[var(--border)] my-6"></div>
+
+      <div class="video-grid">
+        <section class="video-primary">
+          <!-- 生成设置卡片 -->
+          <div class="video-card">
+            <div class="card-title">生成设置</div>
+            <div class="video-settings">
+              <div>
+                <label class="field-label" for="promptInput">提示词</label>
+                <textarea id="promptInput" class="geist-input video-textarea"
+                  placeholder="描述你想要的视频画面，例如：一只猫在草地上奔跑，阳光明媚"></textarea>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="field-label" for="ratioSelect">宽高比</label>
+                  <select id="ratioSelect" class="geist-input">
+                    <option value="3:2" selected>3:2 横向</option>
+                    <option value="16:9">16:9 宽屏</option>
+                    <option value="1:1">1:1 方形</option>
+                    <option value="2:3">2:3 竖向</option>
+                    <option value="9:16">9:16 竖屏</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label" for="lengthSelect">视频时长</label>
+                  <select id="lengthSelect" class="geist-input">
+                    <option value="6" selected>6 秒</option>
+                    <option value="10">10 秒</option>
+                    <option value="15">15 秒</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label" for="resolutionSelect">分辨率</label>
+                  <select id="resolutionSelect" class="geist-input">
+                    <option value="480p" selected>480p</option>
+                    <option value="720p">720p</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label" for="presetSelect">风格预设</label>
+                  <select id="presetSelect" class="geist-input">
+                    <option value="custom" selected>Custom 自定义</option>
+                    <option value="normal">Normal 普通</option>
+                    <option value="fun">Fun 趣味</option>
+                    <option value="spicy">Spicy 辛辣</option>
+                  </select>
+                </div>
+              </div>
+              <div class="video-toggle-row">
+                <div class="video-toggle-item">
+                  <label class="field-label" for="streamToggle">流式输出</label>
+                  <label class="toggle">
+                    <input id="streamToggle" type="checkbox" checked>
+                    <span class="toggle-track"></span>
+                    <span class="toggle-label">实时获取生成进度</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 视频预览卡片 -->
+          <div class="video-card">
+            <div class="card-title">视频预览</div>
+            <div id="videoEmpty" class="video-empty">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                stroke-linecap="round" stroke-linejoin="round" style="color: var(--accents-3); margin-bottom: 12px;">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                <line x1="7" y1="2" x2="7" y2="22"></line>
+                <line x1="17" y1="2" x2="17" y2="22"></line>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <line x1="2" y1="7" x2="7" y2="7"></line>
+                <line x1="2" y1="17" x2="7" y2="17"></line>
+                <line x1="17" y1="17" x2="22" y2="17"></line>
+                <line x1="17" y1="7" x2="22" y2="7"></line>
+              </svg>
+              <div>输入提示词并点击"生成视频"开始</div>
+            </div>
+            <div id="videoProgress" class="video-progress hidden">
+              <div class="video-progress-bar">
+                <div id="progressFill" class="video-progress-fill"></div>
+              </div>
+              <div id="progressText" class="video-progress-text">准备中...</div>
+            </div>
+            <div id="videoPlayer" class="video-player-wrapper hidden">
+              <video id="videoElement" controls playsinline></video>
+            </div>
+            <div id="videoHtmlContainer" class="video-html-container hidden"></div>
+            <div id="videoMeta" class="video-meta hidden">
+              <span id="metaPrompt" class="video-meta-prompt"></span>
+              <span id="metaElapsed" class="font-mono"></span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="video-side">
+          <!-- 生成状态卡片 -->
+          <div class="video-card">
+            <div class="video-status-header">
+              <div class="card-title">生成状态</div>
+              <span id="statusText" class="status-text">就绪</span>
+            </div>
+            <div class="meta-grid">
+              <div class="meta-item">
+                <div class="meta-label">模型</div>
+                <div class="meta-value">grok-imagine-1.0-video</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">宽高比</div>
+                <div id="statusRatio" class="meta-value">3:2</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">时长</div>
+                <div id="statusLength" class="meta-value">6s</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">分辨率</div>
+                <div id="statusResolution" class="meta-value">480p</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">预设</div>
+                <div id="statusPreset" class="meta-value">custom</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 生成历史卡片 -->
+          <div class="video-card">
+            <div class="video-history-header">
+              <div class="card-title">生成历史</div>
+              <button id="clearHistoryBtn" class="geist-button-outline text-xs px-3">清空</button>
+            </div>
+            <div id="historyEmpty" class="video-hint">暂无生成记录</div>
+            <div id="historyList" class="video-history-list"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <div id="app-footer"></div>
+
+  <script src="/static/common/admin-auth.js?v=2"></script>
+  <script src="/static/common/header.js?v=4"></script>
+  <script src="/static/common/footer.js?v=1"></script>
+  <script src="/static/common/toast.js"></script>
+  <script src="/static/video/video.js?v=1"></script>
+</body>
+
+</html>
