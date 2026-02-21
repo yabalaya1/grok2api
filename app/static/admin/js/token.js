@@ -174,6 +174,8 @@ function updateStats(data) {
   let invalidTokens = 0;
   let nsfwTokens = 0;
   let noNsfwTokens = 0;
+  let basicTokens = 0;
+  let superTokens = 0;
   let chatQuota = 0;
   let totalCalls = 0;
 
@@ -190,6 +192,11 @@ function updateStats(data) {
       nsfwTokens++;
     } else {
       noNsfwTokens++;
+    }
+    if (t.pool === 'ssoSuper') {
+      superTokens++;
+    } else {
+      basicTokens++;
     }
     totalCalls += Number(t.use_count || 0);
   });
@@ -210,6 +217,8 @@ function updateStats(data) {
     active: activeTokens,
     cooling: coolingTokens,
     expired: invalidTokens,
+    basic: basicTokens,
+    super: superTokens,
     nsfw: nsfwTokens,
     'no-nsfw': noNsfwTokens
   });
@@ -272,7 +281,8 @@ function renderTable() {
     // Type (Center)
     const tdType = document.createElement('td');
     tdType.className = 'text-center';
-    tdType.innerHTML = `<span class="badge badge-gray">${escapeHtml(item.pool)}</span>`;
+    const isSuper = item.pool === 'ssoSuper';
+    tdType.innerHTML = `<span class="badge ${isSuper ? 'badge-amber' : 'badge-blue'}">${isSuper ? 'Super' : 'Basic'}</span>`;
 
     // Status (Center) - 显示状态和 nsfw 标签
     const tdStatus = document.createElement('td');
@@ -960,6 +970,8 @@ function getFilteredTokens() {
     if (currentFilter === 'active') return t.status === 'active';
     if (currentFilter === 'cooling') return t.status === 'cooling';
     if (currentFilter === 'expired') return t.status !== 'active' && t.status !== 'cooling';
+    if (currentFilter === 'basic') return t.pool !== 'ssoSuper';
+    if (currentFilter === 'super') return t.pool === 'ssoSuper';
     if (currentFilter === 'nsfw') return t.tags && t.tags.includes('nsfw');
     if (currentFilter === 'no-nsfw') return !t.tags || !t.tags.includes('nsfw');
     return true;

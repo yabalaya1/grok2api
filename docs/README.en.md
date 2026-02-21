@@ -90,6 +90,8 @@ The **Video Generation** page (`/video`) in the Playground section provides a vi
 ### Token Management Enhancement
 
 - New **"Refresh All"** button: one-click refresh of all Token statuses without manual selection
+- New **Type Badges**: Token list displays colored badges to distinguish **Basic** (blue) and **Super** (amber) SSO types
+- New **Type Filtering**: Tab bar supports filtering by Basic / Super to quickly locate tokens in different pools
 
 ---
 

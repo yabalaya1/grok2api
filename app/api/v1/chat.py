@@ -525,11 +525,8 @@ async def chat_completions(request: ChatCompletionRequest):
             )
         image_url = image_urls[-1]
 
-        is_stream = (
-            request.stream if request.stream is not None else get_config("app.stream")
-        )
         image_conf = request.image_config or ImageConfig()
-        _validate_image_config(image_conf, stream=bool(is_stream))
+        _validate_image_config(image_conf, stream=bool(resolved_stream))
         response_format = _resolve_image_format(image_conf.response_format)
         response_field = _image_field(response_format)
         n = image_conf.n or 1
@@ -559,7 +556,7 @@ async def chat_completions(request: ChatCompletionRequest):
             images=[image_url],
             n=n,
             response_format=response_format,
-            stream=bool(is_stream),
+            stream=bool(resolved_stream),
         )
 
         if result.stream:
@@ -586,11 +583,8 @@ async def chat_completions(request: ChatCompletionRequest):
     if model_info and model_info.is_image:
         prompt, _ = _extract_prompt_images(request.messages)
 
-        is_stream = (
-            request.stream if request.stream is not None else get_config("app.stream")
-        )
         image_conf = request.image_config or ImageConfig()
-        _validate_image_config(image_conf, stream=bool(is_stream))
+        _validate_image_config(image_conf, stream=bool(resolved_stream))
         response_format = _resolve_image_format(image_conf.response_format)
         response_field = _image_field(response_format)
         n = image_conf.n or 1
@@ -630,7 +624,7 @@ async def chat_completions(request: ChatCompletionRequest):
             response_format=response_format,
             size=size,
             aspect_ratio=aspect_ratio,
-            stream=bool(is_stream),
+            stream=bool(resolved_stream),
         )
 
         if result.stream:
@@ -662,7 +656,7 @@ async def chat_completions(request: ChatCompletionRequest):
         result = await VideoService.completions(
             model=request.model,
             messages=[msg.model_dump() for msg in request.messages],
-            stream=request.stream,
+            stream=resolved_stream,
             reasoning_effort=request.reasoning_effort,
             aspect_ratio=v_conf.aspect_ratio,
             video_length=v_conf.video_length,
@@ -673,7 +667,7 @@ async def chat_completions(request: ChatCompletionRequest):
         result = await ChatService.completions(
             model=request.model,
             messages=[msg.model_dump() for msg in request.messages],
-            stream=request.stream,
+            stream=resolved_stream,
             reasoning_effort=request.reasoning_effort,
             temperature=request.temperature,
             top_p=request.top_p,
